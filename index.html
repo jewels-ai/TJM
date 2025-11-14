@@ -1,322 +1,117 @@
+<!-- Updated index.html with TRY JEWELLERY, SAVINGS PLAN & LOCATION buttons -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AR Video Try-On</title>
+  <title>JEWELS-AI</title>
 
-  <!-- A-Frame & MindAR -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
-    :root {
-      --btn-bg: rgba(0,0,0,0.55);
-      --btn-bg-hover: rgba(0,0,0,0.75);
-      --accent: #ffd700;
-    }
+    body { margin: 0; font-family: 'Poppins', sans-serif; background: #000; }
 
-    html, body {
-      height: 100%;
-      margin: 0;
-      background: #000;
-      font-family: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      overflow: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
+    #logo { position: absolute; top: 16px; left: 16px; width: 100px; z-index: 100; }
 
-    /* Common hidden state for UI until marker found */
-    .ui-hidden { opacity: 0; pointer-events: none; transform: translateY(6px); transition: all .35s ease; }
-    .ui-visible { opacity: 1; pointer-events: auto; transform: translateY(0); transition: all .35s ease; }
+    /* Main video play/pause button */
+    .button-panel { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); display: none; z-index: 100; }
 
-    /* Logo */
-    #logo {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      width: 110px;
-      z-index: 250;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .35s ease, transform .35s ease;
-      transform-origin: left center;
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
-    }
+    .plan-button { padding: 12px 22px; font-size: 16px; font-weight: 600; border: none; border-radius: 10px; background: rgba(0,0,0,0.55); color: #fff; cursor: pointer; }
+    .plan-button:hover { background: rgba(0,0,0,0.75); }
 
-    /* Toggle (center bottom) */
-    #toggleButton {
-      position: absolute;
-      bottom: 22px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 210;
-      min-width: 160px;
-    }
+    /* New Buttons */
+    #tryJewelsBtn { position: absolute; bottom: 10px; left: 10px; display: none; z-index: 110; }
+    #savingsBtn { position: absolute; bottom: 10px; right: 10px; display: none; z-index: 110; }
+    #locationBtn { position: absolute; top: 10px; right: 10px; display: none; z-index: 110; }
 
-    /* Try on Jewellery - Bottom Left */
-    #tryJewelsBtn {
-      position: absolute;
-      bottom: 20px;
-      left: 18px;
-      z-index: 200;
-    }
-
-    /* Savings Plan - Bottom Right */
-    #savingsBtn {
-      position: absolute;
-      bottom: 20px;
-      right: 18px;
-      z-index: 200;
-    }
-
-    /* Location - Top Right */
-    #locationBtn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      z-index: 200;
-    }
-
-    /* WhatsApp Floating Button (above savings) */
-    #whatsappBtn {
-      position: fixed;
-      bottom: 92px;
-      right: 18px;
-      z-index: 260;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.45);
-      opacity: 0;
-      pointer-events: none;
-      transition: all .35s ease;
-    }
-
-    #whatsappBtn img { width: 32px; height: 32px; display:block; }
-
-    /* Buttons */
-    .plan-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 12px 18px;
-      font-size: 16px;
-      font-weight: 700;
-      color: #fff;
-      background: var(--btn-bg);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 12px;
-      cursor: pointer;
-      text-decoration: none;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
-      transition: background .18s ease, transform .12s ease;
-      backdrop-filter: blur(4px);
-      white-space: nowrap;
-    }
-
-    .plan-button:hover { background: var(--btn-bg-hover); transform: translateY(-3px); }
-    .plan-button:active { transform: translateY(-1px); }
-
-    /* Hide default A-Frame enter VR button always */
-    .a-enter-vr-button { display: none !important; }
-
-    /* AR message (fallback) */
-    #arMessage {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 240;
-      color: #fff;
-      font-size: 18px;
-      text-align: center;
-      padding: 12px 18px;
-      border-radius: 10px;
-      background: rgba(0,0,0,0.45);
-      max-width: 86%;
-      pointer-events: none;
-      opacity: 1;
-      transition: opacity .3s ease;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 480px) {
-      #logo { width: 88px; left: 8px; top: 8px; }
-      .plan-button { padding: 10px 14px; font-size: 14px; border-radius: 10px; }
-      #whatsappBtn { bottom: 110px; right: 12px; }
-    }
-  </style>
+    #toast { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.18); color: #fff; padding: 8px 12px; border-radius: 8px; display: none; z-index: 200; }
+  .a-enter-vr-button { display: none !important; }
+</style>
 </head>
 <body>
 
-  <!-- Logo -->
-  <img id="logo" src="logo1.png" alt="Logo - Overlay Cards">
+  <img src="logo1.png" id="logo">
 
-  <!-- AR message shown when no marker is found yet -->
-  <div id="arMessage">Point your camera at the AR card / image to start</div>
+  <div class="button-panel" id="planButtons"><button class="plan-button" id="toggleButton">▶️ Play Video</button></div>
 
-  <!-- Play Video -->
-  <button class="plan-button ui-hidden" id="toggleButton" aria-label="Play or pause AR video">▶️ Play Video</button>
+  <!-- New Buttons -->
+  <button class="plan-button" id="tryJewelsBtn" onclick="window.location.href='https://jewels-ai.github.io/Ai_Jewellery_Demo_Ai/'">🌟 Try Our Jewellery</button>
+  <button class="plan-button" id="savingsBtn" onclick="window.open('https://jewels-ai.github.io/Ai_savings-plan_Ai/')">💰 Savings Plan</button>
+  <button class="plan-button" id="locationBtn" onclick="window.open('https://maps.app.goo.gl/U3cmv1V6CV9e95QB8')">📍 Locations</button>
 
-  <!-- Try on Jewellery -->
-  <button class="plan-button ui-hidden" id="tryJewelsBtn" title="Try our jewellery" onclick="window.location.href='https://jewels-ai.github.io/Ai_Jewellery_Demo_Ai/'">
-    🌟 Try Jewellery
-  </button>
+  <div id="toast">Action Disabled</div>
 
-  <!-- Savings Plan -->
-  <button class="plan-button ui-hidden" id="savingsBtn" title="Savings plan" onclick="window.open('https://jewels-ai.github.io/Ai_savings-plan_Ai/','_blank')">
-    💰 Savings Plan
-  </button>
-
-  <!-- Location (Top Right) -->
-  <button class="plan-button ui-hidden" id="locationBtn" title="Our location" onclick="window.open('https://maps.app.goo.gl/U3cmv1V6CV9e95QB8','_blank')">
-    📍 Location
-  </button>
-
-  <!-- WhatsApp Floating Button -->
-  <div id="whatsappBtn" class="ui-hidden" onclick="window.open('https://wa.me/917019743880','_blank')" role="button" aria-label="Chat on WhatsApp">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
-  </div>
-
-  <!-- A-Frame AR Scene -->
-  <a-scene
-    mindar-image="imageTargetSrc: ./targets.mind; filterMinCF: 0.0001; filterBeta: 0.0001"
-    renderer="colorManagement: false; physicallyCorrectLights: false; antialias: true; logarithmicDepthBuffer: true"
-    loading-screen="enabled: false"
-    vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false">
+  <a-scene mindar-image="imageTargetSrc: ./targets.mind" renderer="colorManagement: true; physicallyCorrectLights: true; antialias: true" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
 
     <a-assets>
-      <!-- video: muted helps autoplay on mobile after user gesture; crossorigin for texture stability -->
       <video id="plan1Video" src="plan1.mp4" playsinline preload="auto" loop crossorigin="anonymous"></video>
     </a-assets>
 
-    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+    <a-camera look-controls="enabled:false"></a-camera>
 
-    <a-entity id="target1" mindar-image-target="targetIndex: 0" smooth="true" smoothCount="8" smoothTolerance="0.01" smoothThreshold="5">
-
-      <!-- The plane will receive the video as a material -->
-      <a-plane id="videoDisplay" position="0 0 0" width="1.2" height="0.675" rotation="0 0 0" material="shader: flat;"></a-plane>
-
+    <a-entity id="target1" mindar-image-target="targetIndex: 0">
+      <a-plane id="videoDisplay" position="0 0 0" width="1" height="0.59" material="src: #plan1Video; shader: flat; side: double"></a-plane>
     </a-entity>
   </a-scene>
 
   <script>
-    // Element references
-    const videoDisplay = document.querySelector('#videoDisplay');
+    const sceneEl = document.querySelector('a-scene');
     const videoEl = document.querySelector('#plan1Video');
+    const videoDisplay = document.querySelector('#videoDisplay');
+    const target = document.querySelector('#target1');
 
+    const buttonsContainer = document.querySelector('#planButtons');
     const toggleButton = document.querySelector('#toggleButton');
+    const toast = document.querySelector('#toast');
+
     const tryJewelsBtn = document.querySelector('#tryJewelsBtn');
     const savingsBtn = document.querySelector('#savingsBtn');
     const locationBtn = document.querySelector('#locationBtn');
-    const whatsappBtn = document.querySelector('#whatsappBtn');
-    const logo = document.querySelector('#logo');
-    const target = document.querySelector('#target1');
-    const arMessage = document.querySelector('#arMessage');
 
-    // UI group for easy toggling
-    const uiElems = [toggleButton, tryJewelsBtn, savingsBtn, locationBtn, whatsappBtn, logo];
-
-    // Playback state
     let isPlaying = false;
 
-    // Use correct A-Frame material syntax to set the video as texture
-    function attachVideoToPlane() {
-      // set attribute with correct "src: #id" syntax
-      videoDisplay.setAttribute('material', 'src: #plan1Video; shader: flat;');
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.style.display = 'block';
+      setTimeout(() => toast.style.display = 'none', 1200);
     }
 
-    // When marker is found, show buttons and hint
     target.addEventListener('targetFound', () => {
-      uiElems.forEach(el => {
-        el.classList.remove('ui-hidden'); el.classList.add('ui-visible');
-      });
-      arMessage.style.opacity = '0';
-      arMessage.style.pointerEvents = 'none';
-      // Attach video texture once (idempotent)
-      attachVideoToPlane();
+      buttonsContainer.style.display = 'block';
+      tryJewelsBtn.style.display = 'block';
+      savingsBtn.style.display = 'block';
+      locationBtn.style.display = 'block';
     });
 
-    // When marker is lost, hide UI and pause video
     target.addEventListener('targetLost', () => {
-      uiElems.forEach(el => {
-        el.classList.remove('ui-visible'); el.classList.add('ui-hidden');
-      });
-      arMessage.style.opacity = '1';
-      arMessage.style.pointerEvents = 'none';
-      if (isPlaying) {
+      buttonsContainer.style.display = 'none';
+      tryJewelsBtn.style.display = 'none';
+      savingsBtn.style.display = 'none';
+      locationBtn.style.display = 'none';
+      videoEl.pause();
+      toggleButton.textContent = "▶️ Play Video";
+      isPlaying = false;
+    });
+
+    toggleButton.addEventListener('click', () => {
+      if (!isPlaying) {
+        videoDisplay.setAttribute('material', 'src', '#plan1Video');
+        videoEl.play();
+        toggleButton.textContent = "⏸ Pause Video";
+        isPlaying = true;
+      } else {
         videoEl.pause();
-        isPlaying = false;
         toggleButton.textContent = "▶️ Play Video";
-      }
-    });
-
-    // Play / Pause click
-    toggleButton.addEventListener('click', async () => {
-      try {
-        // Ensure video assigned as texture
-        attachVideoToPlane();
-
-        if (!isPlaying) {
-          // Play returns a promise; handle gracefully
-          await videoEl.play();
-          isPlaying = true;
-          toggleButton.textContent = "⏸ Pause Video";
-        } else {
-          videoEl.pause();
-          isPlaying = false;
-          toggleButton.textContent = "▶️ Play Video";
-        }
-      } catch (err) {
-        console.warn('Video play failed:', err);
-        alert('Video playback failed. Tap the screen or try again.');
-      }
-    });
-
-    // Disable right click and some shortcuts to protect assets (optional)
-    document.addEventListener("contextmenu", (e) => e.preventDefault());
-    document.addEventListener("keydown", (e) => {
-      if (
-        e.key === "F12" ||
-        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
-        (e.ctrlKey && e.key === "u")
-      ) {
-        e.preventDefault();
-        // small unobtrusive notice
-        console.log("Action disabled");
-      }
-    });
-
-    // OPTIONAL: when page hidden, pause video to save resources
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden && isPlaying) {
-        videoEl.pause();
         isPlaying = false;
-        toggleButton.textContent = "▶️ Play Video";
       }
     });
 
-    // Small safety: if video ends (loop is on), keep button state consistent
-    videoEl.addEventListener('pause', () => {
-      if (isPlaying) { // user paused via browser UI
-        isPlaying = false;
-        toggleButton.textContent = "▶️ Play Video";
+    document.addEventListener("contextmenu", e => { e.preventDefault(); showToast('Action Disabled'); });
+    document.addEventListener("keydown", e => {
+      if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || (e.ctrlKey && e.key === "u")) {
+        e.preventDefault(); showToast('Action Disabled');
       }
-    });
-    videoEl.addEventListener('play', () => {
-      isPlaying = true;
-      toggleButton.textContent = "⏸ Pause Video";
-    });
-
-    // Helpful: if assets are preloaded but plane material not set, set on DOM load
-    window.addEventListener('DOMContentLoaded', () => {
-      // keep message visible until marker found
-      arMessage.style.opacity = '1';
     });
   </script>
 </body>
