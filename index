@@ -1,4 +1,4 @@
-<!-- Updated index.html with WhatsApp icon-only button (36px) above Savings Plan -->
+<!-- Updated index.html with TRY JEWELLERY, SAVINGS PLAN & LOCATION buttons -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,37 +23,21 @@
     /* New Buttons */
     #tryJewelsBtn { position: absolute; bottom: 10px; left: 10px; display: none; z-index: 110; }
     #savingsBtn { position: absolute; bottom: 10px; right: 10px; display: none; z-index: 110; }
-    #whatsappBtn { position: absolute; bottom: 70px; right: 10px; display: none; z-index: 111; border-radius: 50%; padding: 8px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.55); }
-    #whatsappBtn:hover { background: rgba(0,0,0,0.72); }
     #locationBtn { position: absolute; top: 10px; right: 10px; display: none; z-index: 110; }
 
     #toast { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.18); color: #fff; padding: 8px 12px; border-radius: 8px; display: none; z-index: 200; }
-    .a-enter-vr-button { display: none !important; }
-
-    /* WhatsApp SVG sizing */
-    .wh-icon { width: 36px; height: 36px; display: block; }
-  </style>
+  .a-enter-vr-button { display: none !important; }
+</style>
 </head>
 <body>
 
-  <img src="logo1.png" id="logo" alt="logo">
+  <img src="logo1.png" id="logo">
 
   <div class="button-panel" id="planButtons"><button class="plan-button" id="toggleButton">▶️ Play Video</button></div>
 
   <!-- New Buttons -->
   <button class="plan-button" id="tryJewelsBtn" onclick="window.location.href='https://jewels-ai.github.io/Ai_Jewellery_Demo_Ai/'">🌟 Try Our Jewellery</button>
   <button class="plan-button" id="savingsBtn" onclick="window.open('https://jewels-ai.github.io/Ai_savings-plan_Ai/')">💰 Savings Plan</button>
-
-  <!-- WhatsApp icon-only circular button (opens click-to-chat) -->
-  <button id="whatsappBtn" aria-label="Chat on WhatsApp" title="Chat on WhatsApp" onclick="window.open('https://wa.me/917019743880')">
-    <!-- Inline WhatsApp SVG (keeps it self-contained, 36px) -->
-    <svg class="wh-icon" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
-      <circle cx="16" cy="16" r="16" fill="#25D366"/>
-      <path d="M22.3 9.7c-0.6-0.6-1.5-0.7-2.4-0.5-1 0.2-2 0.7-2.8 1.3-0.9 0.7-1.6 1.6-2.2 2.6-0.5 0.9-0.9 1.9-1 2.9-0.1 0.8 0 1.6 0.4 2.2l-0.1 0.4c-0.3 1.1-1 2.1-1.9 2.7-0.4 0.3-0.9 0.5-1.4 0.6-0.1 0-0.2 0.1-0.3 0.1-0.3 0.1-0.7 0.1-1 0.1-0.8 0-1.5-0.2-2.1-0.6-0.9-0.6-1.5-1.4-1.8-2.3-0.4-1.2-0.5-2.5 0.1-3.7 0.5-1 1.7-1.8 2.4-2.3 0.4-0.3 0.9-0.6 1.3-0.8 0.3-0.2 0.6-0.3 0.9-0.4 0.3-0.1 0.6-0.1 0.9 0 0.4 0.1 0.7 0.3 1 0.5 0.3 0.2 0.6 0.5 0.9 0.8 0.3 0.2 0.6 0.5 0.9 0.7 0.2 0.1 0.4 0.2 0.6 0.3 0.4 0.1 0.8-0.1 1.1-0.4 0.6-0.6 1-1.3 1.1-2.1 0-0.9-0.3-1.8-0.9-2.4z" fill="#fff"/>
-      <path d="M20.8 11.5c-0.1 0-0.4 0-0.8 0.4-0.4 0.4-0.9 1-1 1.1-0.3 0.2-0.6 0.2-1 0.1-0.2 0-0.5-0.1-0.8-0.2-0.2-0.1-0.5-0.2-0.8-0.2-0.5 0-1 0.2-1.4 0.6-0.5 0.6-0.9 1.4-1 2.3-0.1 0.5 0.1 1 0.4 1.6 0.2 0.4 0.7 0.9 1.3 1.3 0.9 0.6 2.1 1 3.4 1.1 0.7 0.1 1.3 0.1 1.9 0.1 0.4 0 0.8 0 1.1-0.1 0.5-0.2 0.9-0.5 1.2-0.9 0.3-0.4 0.4-0.8 0.5-1.2 0.1-0.5 0.1-1 0-1.4-0.2-1-0.7-2-1.5-2.8-0.6-0.6-1.4-0.9-2.3-0.9z" fill="#fff" opacity="0.95"/>
-    </svg>
-  </button>
-
   <button class="plan-button" id="locationBtn" onclick="window.open('https://maps.app.goo.gl/U3cmv1V6CV9e95QB8')">📍 Locations</button>
 
   <div id="toast">Action Disabled</div>
@@ -84,7 +68,6 @@
     const tryJewelsBtn = document.querySelector('#tryJewelsBtn');
     const savingsBtn = document.querySelector('#savingsBtn');
     const locationBtn = document.querySelector('#locationBtn');
-    const whatsappBtn = document.querySelector('#whatsappBtn');
 
     let isPlaying = false;
 
@@ -99,7 +82,6 @@
       tryJewelsBtn.style.display = 'block';
       savingsBtn.style.display = 'block';
       locationBtn.style.display = 'block';
-      whatsappBtn.style.display = 'flex';
     });
 
     target.addEventListener('targetLost', () => {
@@ -107,7 +89,6 @@
       tryJewelsBtn.style.display = 'none';
       savingsBtn.style.display = 'none';
       locationBtn.style.display = 'none';
-      whatsappBtn.style.display = 'none';
       videoEl.pause();
       toggleButton.textContent = "▶️ Play Video";
       isPlaying = false;
