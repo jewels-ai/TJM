@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AR Video Try-On</title>
+
+  <!-- A-Frame & MindAR -->
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #000;
+      overflow: hidden;
+    }
+
+    /* Logo */
+    #logo {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      width: 100px;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    /* Play Button */
+    #toggleButton {
+      position: absolute;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* Try on Jewellery - Bottom Left */
+    #tryJewelsBtn {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* Savings Plan - Bottom Center */
+    #savingsBtn {
+      position: absolute;
+      bottom: 20px;
+      left: 80%;
+      transform: translateX(-50%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* Location - Top Right */
+    #locationBtn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* Buttons Style */
+    .plan-button {
+      padding: 14px 22px;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s;
+      white-space: nowrap;
+    }
+
+    .plan-button:hover {
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    /* WhatsApp Floating Button */
+    #whatsappBtn {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      background-color: #25D366;
+      border-radius: 50%;
+      width: 55px;
+      height: 55px;
+      opacity: 0;
+      pointer-events: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      z-index: 130;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      transition: opacity 0.4s ease;
+    }
+
+    #whatsappBtn img {
+      width: 30px;
+      height: 30px;
+    }
+
+    .a-enter-vr-button {
+      display: none !important;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .plan-button {
+        padding: 12px 18px;
+        font-size: 16px;
+      }
+      #tryJewelsBtn {
+        left: 10px;
+      }
+      #locationBtn {
+        right: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Logo -->
+  <img src="logo1.png" id="logo" alt="Logo">
+
+  <!-- Play Video -->
+  <button class="plan-button" id="toggleButton">▶️ Play Video</button>
+
+  <!-- Try on Jewellery -->
+  <button class="plan-button" id="tryJewelsBtn" onclick="window.location.href='https://jewels-ai.github.io/Ai_Jewellery_Demo_Ai/'">
+    🌟 Try on Jewellery
+  </button>
+
+  <!-- Savings Plan -->
+  <button class="plan-button" id="savingsBtn" onclick="window.open('https://jewels-ai.github.io/Ai_savings-plan_Ai/')">
+    💰 Savings Plan
+  </button>
+
+  <!-- Location (Top Right) -->
+  <button class="plan-button" id="locationBtn" onclick="window.open('https://maps.app.goo.gl/U3cmv1V6CV9e95QB8')">
+    📍 Location
+  </button>
+
+  <!-- WhatsApp Floating Button -->
+  <div id="whatsappBtn" onclick="window.open('https://wa.me/917019743880','_blank')">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+  </div>
+
+  <!-- AR Scene -->
+  <a-scene
+    mindar-image="imageTargetSrc: ./targets.mind; filterMinCF: 0.0001; filterBeta: 0.001"
+    renderer="colorManagement: false; physicallyCorrectLights: false; antialias: true; logarithmicDepthBuffer: true"
+    loading-screen="enabled: false"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false">
+
+    <a-assets>
+      <video id="plan1Video" src="plan1.mp4" playsinline preload="auto" loop></video>
+    </a-assets>
+
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <a-entity
+      id="target1"
+      mindar-image-target="targetIndex: 0"
+      smooth="true"
+      smoothCount="10"
+      smoothTolerance="0.01"
+      smoothThreshold="5">
+
+      <a-plane
+        id="videoDisplay"
+        position="0 0 0"
+        width="1"
+        height="0.56"
+        material="shader: flat">
+      </a-plane>
+    </a-entity>
+  </a-scene>
+
+  <script>
+    const videoDisplay = document.querySelector('#videoDisplay');
+    const videoEl = document.querySelector('#plan1Video');
+
+    const toggleButton = document.querySelector('#toggleButton');
+    const tryJewelsBtn = document.querySelector('#tryJewelsBtn');
+    const savingsBtn = document.querySelector('#savingsBtn');
+    const locationBtn = document.querySelector('#locationBtn');
+    const whatsappBtn = document.querySelector('#whatsappBtn');
+    const logo = document.querySelector('#logo');
+    const target = document.querySelector('#target1');
+
+    let isPlaying = false;
+
+    target.addEventListener('targetFound', () => {
+      [toggleButton, tryJewelsBtn, savingsBtn, locationBtn, whatsappBtn, logo].forEach(el => {
+        el.style.opacity = '1';
+        el.style.pointerEvents = 'auto';
+      });
+    });
+
+    target.addEventListener('targetLost', () => {
+      [toggleButton, tryJewelsBtn, savingsBtn, locationBtn, whatsappBtn, logo].forEach(el => {
+        el.style.opacity = '0';
+        el.style.pointerEvents = 'none';
+      });
+      videoEl.pause();
+      isPlaying = false;
+      toggleButton.textContent = "▶️ Play Video";
+    });
+
+    toggleButton.addEventListener('click', () => {
+      if (!isPlaying) {
+        videoDisplay.setAttribute('material', 'src', '#plan1Video');
+        videoEl.play();
+        isPlaying = true;
+        toggleButton.textContent = "⏸ Pause Video";
+      } else {
+        videoEl.pause();
+        isPlaying = false;
+        toggleButton.textContent = "▶️ Play Video";
+      }
+    });
+
+    document.addEventListener("contextmenu", (e) => e.preventDefault());
+    document.addEventListener("keydown", (e) => {
+      if (
+        e.key === "F12" ||
+        (e.ctrlKey && e.shiftKey && e.key === "I") ||
+        (e.ctrlKey && e.shiftKey && e.key === "J") ||
+        (e.ctrlKey && e.key === "u") ||
+        (e.ctrlKey && e.shiftKey && e.key === "C")
+      ) {
+        e.preventDefault();
+        alert("🚫 Action Disabled!");
+      }
+    });
+  </script>
+</body>
+</html>
