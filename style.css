@@ -1,0 +1,418 @@
+/* style.css - Aurum Atelier Premium AR Interface */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;600&display=swap');
+
+:root {
+  --accent: #d4af37;
+  --accent-glow: rgba(212, 175, 55, 0.4);
+  --bg: #000;
+  --glass: rgba(255, 255, 255, 0.1);
+  --glass-dark: rgba(0, 0, 0, 0.7);
+}
+
+body { 
+  margin: 0; 
+  background: var(--bg); 
+  font-family: 'Montserrat', sans-serif; 
+  overflow: hidden; 
+  color: #fff; 
+  user-select: none;
+}
+
+/* --- 1. VIDEO & CANVAS LAYERS --- */
+#video-container { 
+  position: fixed; 
+  inset: 0; 
+  z-index: 0; 
+  background: black;
+}
+
+#webcam {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+#overlay { 
+  position: absolute;
+  width: 100%; 
+  height: 100%; 
+  object-fit: cover; 
+  z-index: 1; 
+}
+
+/* --- 2. LOADING STATUS --- */
+#loading-status {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.8);
+    color: var(--accent);
+    padding: 20px 40px;
+    border-radius: 10px;
+    border: 1px solid var(--accent);
+    font-family: 'Playfair Display';
+    font-size: 20px;
+    z-index: 500;
+}
+
+/* --- 3. GESTURE INDICATOR (HIDDEN) --- */
+#gesture-indicator {
+  display: none !important; 
+}
+
+#indicator-dot { 
+  width: 10px; 
+  height: 10px; 
+  background: #555; 
+  border-radius: 50%; 
+  box-shadow: 0 0 8px rgba(0,0,0,0.5);
+  transition: background 0.3s ease;
+}
+
+/* --- 4. TOP BRANDING BAR --- */
+#controls-hero {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  padding: 20px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent);
+  z-index: 10;
+}
+
+.brand-row { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+}
+
+.brand-left {
+  display: flex;
+  align-items: center;
+}
+
+.brand-logo { height: 40px; margin-right: 12px; }
+.brand-name { font-family: 'Playfair Display'; font-size: 22px; color: var(--accent); letter-spacing: 1px; }
+
+.action-row button {
+  background: var(--glass); 
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 10px; 
+  border-radius: 50%; 
+  margin-left: 10px; 
+  cursor: pointer;
+  transition: transform 0.2s;
+  color: white;
+}
+
+.action-row button:hover { transform: scale(1.1); background: rgba(255,255,255,0.2); }
+
+/* --- 5. CONTROLS PANEL (BOTTOM) --- */
+.controls-panel {
+  position: fixed;
+  bottom: 25px; 
+  left: 50%; 
+  transform: translateX(-50%);
+  width: 90%; 
+  max-width: 600px;
+  text-align: center;
+  z-index: 15;
+}
+
+.pill-group, .sub-pills { 
+  display: flex; 
+  justify-content: center; 
+  gap: 12px; 
+  margin-bottom: 15px; 
+  flex-wrap: wrap;
+}
+
+.pill, .subpill {
+  padding: 12px 24px; 
+  border-radius: 30px; 
+  border: 1px solid rgba(255,255,255,0.1); 
+  background: var(--glass);
+  color: #fff; 
+  font-weight: 600; 
+  cursor: pointer; 
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.pill:hover, .subpill:hover { background: rgba(255,255,255,0.2); border-color: var(--accent); }
+
+.pill.accent { 
+  background: var(--accent); 
+  color: #000; 
+  border: none;
+  box-shadow: 0 4px 15px var(--accent-glow);
+}
+
+.pill.accent.active {
+  background: #ff4444 !important;
+  color: #fff;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* --- 6. CAROUSEL --- */
+.carousel-cards {
+  display: flex; 
+  gap: 15px; 
+  overflow-x: auto; 
+  padding: 15px; 
+  justify-content: center;
+  scrollbar-width: none; 
+}
+
+.thumb-btn { 
+  height: 70px; 
+  width: 70px;
+  object-fit: contain;
+  background: var(--glass);
+  padding: 5px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+  cursor: pointer; 
+  transition: all 0.2s;
+}
+
+.thumb-btn:hover { border-color: var(--accent); transform: translateY(-5px); }
+
+/* --- 7. SINGLE PREVIEW MODAL --- */
+#preview-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.95);
+    z-index: 2000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    overflow: hidden;
+    padding: 20px;
+}
+
+#preview-image {
+    max-width: 100%;
+    max-height: 80vh;
+    border: 2px solid var(--accent);
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+}
+
+.preview-actions {
+    padding: 30px;
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    justify-content: center;
+    background: rgba(0,0,0,0.5);
+}
+
+.close-preview {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 40px;
+    color: white;
+    cursor: pointer;
+    z-index: 2001;
+}
+
+/* --- 8. GALLERY GRID --- */
+#gallery-modal {
+  position: fixed; 
+  inset: 0; 
+  background: rgba(0,0,0,0.95);
+  z-index: 1000; 
+  display: none; 
+  align-items: center; 
+  justify-content: center;
+  backdrop-filter: blur(10px);
+}
+
+.gallery-content {
+  background: #0f0f0f; 
+  width: 90%; 
+  max-width: 900px;
+  max-height: 85vh; 
+  border-radius: 24px;
+  padding: 40px; 
+  position: relative; 
+  border: 1px solid var(--accent);
+  overflow-y: auto; 
+  text-align: center;
+}
+
+.gallery-subtitle {
+    color: #888;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+#gallery-grid {
+  display: grid; 
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 15px; 
+  margin: 10px 0;
+}
+
+.gallery-thumb { 
+  width: 100%; 
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 10px; 
+  border: 2px solid rgba(255,255,255,0.1); 
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.gallery-thumb:hover {
+    border-color: var(--accent);
+    transform: scale(1.05);
+}
+
+.close-gallery {
+  position: absolute; 
+  top: 20px; 
+  right: 25px; 
+  font-size: 35px; 
+  cursor: pointer; 
+  color: var(--accent);
+  line-height: 1;
+}
+
+/* --- 9. LIGHTBOX --- */
+#lightbox-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.98);
+    z-index: 2000;
+    display: none; 
+    flex-direction: column;
+}
+
+.lightbox-main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    overflow: hidden;
+}
+
+#lightbox-image {
+    max-width: 100%;
+    max-height: 100%;
+    border: 1px solid #333;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+}
+
+.lightbox-strip {
+    height: 100px;
+    background: rgba(20, 20, 20, 0.95);
+    border-top: 1px solid #333;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 10px;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.lightbox-strip::-webkit-scrollbar { display: none; }
+.lightbox-strip { scrollbar-width: none; }
+
+.strip-thumb {
+    height: 70px;
+    width: 70px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.strip-thumb:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+}
+
+.strip-thumb.active {
+    opacity: 1;
+    border-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.close-lightbox {
+    position: absolute;
+    top: 20px; right: 30px;
+    font-size: 40px;
+    color: white;
+    cursor: pointer;
+    z-index: 2001;
+}
+
+/* --- 10. SPINNER --- */
+#process-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    z-index: 4000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.process-box {
+    text-align: center;
+    color: white;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto;
+    border: 5px solid rgba(255,255,255,0.1);
+    border-top: 5px solid var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* --- 11. FLASH --- */
+#flash-overlay {
+  position: fixed; 
+  inset: 0; 
+  background: #fff; 
+  opacity: 0; 
+  pointer-events: none; 
+  z-index: 3000;
+}
+#flash-overlay.active { 
+  opacity: 1; 
+  transition: opacity 0.05s; 
+}

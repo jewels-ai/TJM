@@ -1,146 +1,130 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>JEWELS-AI</title>
+  <title>JEWELS-AI | Aurum Atelier</title>
+  
+  <link rel="stylesheet" href="style.css" />
 
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 
-  <style>
-    body { margin: 0; font-family: 'Poppins', sans-serif; background: #000; }
-
-    #logo { position: absolute; top: 16px; left: 16px; width: 100px; z-index: 100; }
-
-    .button-panel { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); display: none; z-index: 100; }
-
-    .plan-button { padding: 12px 22px; font-size: 16px; font-weight: 600; border: none; border-radius: 10px; background: rgba(0,0,0,0.55); color: #fff; cursor: pointer; }
-    .plan-button:hover { background: rgba(0,0,0,0.75); }
-
-    /* New Buttons */
-    #tryJewelsBtn { position: absolute; bottom: 10px; left: 10px; display: none; z-index: 110; }
-    #savingsBtn { position: absolute; bottom: 10px; right: 10px; display: none; z-index: 110; }
-
-    /* WhatsApp Button */
-    #whatsappBtn { 
-      position: absolute; 
-      bottom: 70px; 
-      right: 10px; 
-      display: none; 
-      z-index: 111; 
-      border: none; 
-      background: none; 
-      padding: 0; 
-      width: 56px; 
-      height: 56px; 
-      border-radius: 50%; 
-    }
-    #whatsappBtn img { 
-      width: 56px; 
-      height: 56px; 
-      border-radius: 50%; 
-      box-shadow: 0 6px 18px rgba(0,0,0,0.45);
-    }
-
-    #locationBtn { position: absolute; top: 10px; right: 10px; display: none; z-index: 110; }
-
-    #toast { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.18); color: #fff; padding: 8px 12px; border-radius: 8px; display: none; z-index: 200; }
-
-    .a-enter-vr-button { display: none !important; }
-  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
 <body>
+  <div id="app">
+    <div id="video-container">
+      <video id="webcam" autoplay playsinline muted></video>
+      <canvas id="overlay"></canvas>
+    </div>
 
-  <img src="logo1.png" id="logo">
+    <div id="loading-status">Starting Camera...</div>
 
-  <div class="button-panel" id="planButtons"><button class="plan-button" id="toggleButton">▶️ Play Video</button></div>
+    <div id="gesture-indicator">
+      <div id="indicator-dot"></div>
+      <span id="indicator-text">Show Hand to Control</span>
+    </div>
 
-  <button class="plan-button" id="tryJewelsBtn" onclick="window.location.href='https://jewels-ai.github.io/Ai_Jewellery_Demo_Ai/'">🌟 Try Our Jewellery</button>
-  <button class="plan-button" id="savingsBtn" onclick="window.open('https://jewels-ai.github.io/Ai_savings-plan_Ai/')">💰 Savings Plan</button>
+    <header id="controls-hero">
+      <div class="brand-row">
+        <div class="brand-left">
+          <img src="logo.png" alt="Jewels-ai Logo" class="brand-logo" />
+        </div>
+        <div class="action-row">
+          <button id="snapshot-btn" onclick="takeSnapshot()" title="Capture Look">
+             <span style="font-size:20px;">📷</span>
+          </button>
+        </div>
+      </div>
 
-  <!-- WhatsApp Button -->
-  <button id="whatsappBtn" onclick="window.open('https://wa.me/917019743880')">
-    <img src="whatsapp.png" alt="WhatsApp">
-  </button>
+      <div class="controls-panel">
+        <div id="jewelry-mode" class="pill-group">
+          <button class="pill" onclick="toggleCategory('gold')">Gold</button>
+          <button class="pill" onclick="toggleCategory('diamond')">Diamond</button>
+          <button id="tryall-btn" class="pill accent" onclick="toggleTryAll()">Try All</button>
+        </div>
 
-  <button class="plan-button" id="locationBtn" onclick="window.open('https://maps.app.goo.gl/wdtczmT7s3CfSrXN8')">📍 Locations</button>
+        <div id="subcategory-buttons" class="sub-pills" style="display:none;">
+          <button onclick="selectJewelryType('gold_earrings')" class="subpill">Gold Earrings</button>
+          <button onclick="selectJewelryType('gold_necklaces')" class="subpill">Gold Necklaces</button>
+          <button onclick="selectJewelryType('diamond_earrings')" class="subpill">Diamond Earrings</button>
+          <button onclick="selectJewelryType('diamond_necklaces')" class="subpill">Diamond Necklaces</button>
+        </div>
 
-  <div id="toast">Action Disabled</div>
+        <div id="jewelry-options" class="carousel-cards" style="display:none;"></div>
+      </div>
+    </header>
 
-  <a-scene mindar-image="imageTargetSrc: ./targets.mind" renderer="colorManagement: true; physicallyCorrectLights: true; antialias: true" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <div id="preview-modal">
+        <span class="close-preview" onclick="closePreview()">&times;</span>
+        
+        <div class="preview-container">
+            <img id="preview-image" src="" alt="Captured Look">
+        </div>
 
-    <a-assets>
-      <video id="plan1Video" src="plan1.mp4" playsinline preload="auto" loop crossorigin="anonymous"></video>
-    </a-assets>
+        <div class="preview-actions">
+            <button class="pill accent" onclick="downloadSingleSnapshot()">
+                Download
+            </button>
+            <button class="pill" onclick="shareSingleSnapshot()">
+                Share
+            </button>
+        </div>
+    </div>
 
-    <a-camera look-controls="enabled:false"></a-camera>
+    <div id="gallery-modal" role="dialog" aria-labelledby="gallery-title" aria-modal="true">
+      <div class="gallery-content">
+        <span class="close-gallery" onclick="closeGallery()" aria-label="Close Gallery">&times;</span>
+        <h2 id="gallery-title" style="font-family: 'Playfair Display'; color: #d4af37;">Your Collection</h2>
+        <div class="gallery-subtitle">Tap an image to view details</div>
+        
+        <div id="gallery-grid"></div>
+        
+        <div style="margin-top: 20px;">
+          <button class="pill accent" onclick="downloadAllAsZip()">Download ZIP</button>
+          <button class="pill" onclick="closeGallery()" style="margin-left: 10px;">Back to Camera</button>
+        </div>
+      </div>
+    </div>
 
-    <a-entity id="target1" mindar-image-target="targetIndex: 0">
-      <a-plane id="videoDisplay" position="0 0 0" width="1" height="0.59" material="src: #plan1Video; shader: flat; side: double"></a-plane>
-    </a-entity>
-  </a-scene>
+    <div id="lightbox-overlay">
+        <span class="close-lightbox" onclick="closeLightbox()">&times;</span>
+        <div class="lightbox-main">
+            <img id="lightbox-image" src="" alt="Zoomed View">
+        </div>
+        <div class="lightbox-strip" id="lightbox-thumbs"></div>
+    </div>
 
-  <script>
-    const videoEl = document.querySelector('#plan1Video');
-    const videoDisplay = document.querySelector('#videoDisplay');
-    const target = document.querySelector('#target1');
+    <div id="process-overlay">
+        <div class="process-box">
+            <div id="process-spinner" class="spinner"></div>
+            <div id="process-success" style="display:none; font-size: 50px;">✅</div>
+            <p id="process-text" style="margin-top:15px; font-size:18px;">Packaging Collection...</p>
+        </div>
+    </div>
 
-    const buttonsContainer = document.querySelector('#planButtons');
-    const toggleButton = document.querySelector('#toggleButton');
-    const toast = document.querySelector('#toast');
+    <div id="flash-overlay"></div>
 
-    const tryJewelsBtn = document.querySelector('#tryJewelsBtn');
-    const savingsBtn = document.querySelector('#savingsBtn');
-    const locationBtn = document.querySelector('#locationBtn');
-    const whatsappBtn = document.querySelector('#whatsappBtn');
+    <div id="whatsapp-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:6000; align-items:center; justify-content:center; flex-direction:column;">
+        <div style="background:#111; padding:30px; border-radius:15px; border:1px solid #d4af37; text-align:center; max-width:90%; width: 400px;">
+            <h2 style="font-family:'Playfair Display'; color:#d4af37; margin-top:0;">Save Your Look</h2>
+            <p style="color:#ccc; margin-bottom:20px; font-size: 14px;">Enter your WhatsApp number to download your photo<br>and unlock exclusive designs.</p>
+            
+            <input type="tel" id="user-phone" placeholder="Example: +91 9876543210" 
+                   style="width:90%; padding:12px; margin-bottom:15px; border-radius:8px; border:1px solid #333; background:#222; color:white; font-size:16px; outline:none;">
+            
+            <button class="pill accent" onclick="confirmWhatsAppDownload()" style="width:100%; justify-content:center; margin-top: 10px;">
+                Confirm & Download
+            </button>
+            <button onclick="closeWhatsAppModal()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer; text-decoration:underline;">Cancel</button>
+        </div>
+    </div>
 
-    let isPlaying = false;
+  </div>
 
-    function showToast(msg) {
-      toast.textContent = msg;
-      toast.style.display = 'block';
-      setTimeout(() => toast.style.display = 'none', 1200);
-    }
-
-    target.addEventListener('targetFound', () => {
-      buttonsContainer.style.display = 'block';
-      tryJewelsBtn.style.display = 'block';
-      savingsBtn.style.display = 'block';
-      locationBtn.style.display = 'block';
-      whatsappBtn.style.display = 'block';
-    });
-
-    target.addEventListener('targetLost', () => {
-      buttonsContainer.style.display = 'none';
-      tryJewelsBtn.style.display = 'none';
-      savingsBtn.style.display = 'none';
-      locationBtn.style.display = 'none';
-      whatsappBtn.style.display = 'none';
-      videoEl.pause();
-      toggleButton.textContent = "▶️ Play Video";
-      isPlaying = false;
-    });
-
-    toggleButton.addEventListener('click', () => {
-      if (!isPlaying) {
-        videoDisplay.setAttribute('material', 'src', '#plan1Video');
-        videoEl.play();
-        toggleButton.textContent = "⏸ Pause Video";
-        isPlaying = true;
-      } else {
-        videoEl.pause();
-        toggleButton.textContent = "▶️ Play Video";
-        isPlaying = false;
-      }
-    });
-
-    document.addEventListener("contextmenu", e => { e.preventDefault(); showToast('Action Disabled'); });
-    document.addEventListener("keydown", e => {
-      if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || (e.ctrlKey && e.key === "u")) {
-        e.preventDefault(); showToast('Action Disabled');
-      }
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
